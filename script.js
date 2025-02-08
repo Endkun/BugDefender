@@ -25,8 +25,8 @@ class BackGround{
                      ["1","0","0","1","0","0","0","0","0","0","0","0","0","2","2","2"],
                      ["1","0","0","1","0","0","0","0","0","0","0","0","0","2","2","2"],
                      ["1","1","1","1","0","0","0","0","0","0","0","0","0","2","2","2"],
-                     ["1","1","1","0","0","0","0","0","0","0","0","0","2","2","2","2"],
-                     ["1","1","1","0","0","0","0","0","0","0","0","0","0","2","2","2"],
+                     ["1","1","0","0","0","0","0","0","0","0","0","0","2","2","2","2"],
+                     ["1","1","1","1","0","0","0","0","0","0","0","0","0","2","2","2"],
                      ["1","1","0","0","0","0","0","0","0","0","0","0","0","2","2","2"],
                      ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
                     ];
@@ -62,13 +62,16 @@ class Player{
     }
 }
 class Enemy{
-    constructor(ex,ey){
+    constructor(ex,ey,name){
         this.x = ex;
         this.y = ey;
         this.w = 50;
         this.h = 50;
+        this.name = name
         this.team = "敵"
         this.tick = 0;
+        this.deathTick = 0;
+        this.isDeath = 0;
         this.eny = new Image();
         this.eny.src = 'img/bug1.png'
     }
@@ -97,26 +100,41 @@ class Enemy{
             this.newy = this.y + this.y1;
     
             if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
+                this.isDeath = 1;
                 return;
             }
+            console.log(this.name,this.x,this.y)
             let tileValue = B.list[this.newy / 50][this.newx / 50];
             if (tileValue !== "0") {
-                return;
+                this.isDeath = 1;
             }
     
             if (this.newx === P.x && this.newy === P.y) {
-                return;
+                this.isDeath = 1;
             }
     
             for (let eny of enys) {
                 if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
-                    return;
+                    this.isDeath = 1;
                 }
             }
             for (let stone of stones){
                 if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
-                    return;
+                    this.isDeath = 1;
                 }
+            }
+            if (this.isDeath == "1") {//死亡カウント用
+                this.deathTick += 1
+            }else{
+                this.deathTick = 0
+            }
+            if (this.deathTick > 500){
+                this.x = 50
+                this.y = 50
+            }
+            if (this.isDeath == "1"){ //return切り離し用
+                this.isDeath = 0
+                return;
             }
             this.x = this.newx;
             this.y = this.newy;
@@ -146,14 +164,16 @@ const ctx = canvas.getContext("2d");
 function main() {
     let P = new Player();
     let B = new BackGround(); 
-    let E1 = new Enemy(450,350);
-    let E2 = new Enemy(450,350);
-    let E3 = new Enemy(450,550);
-    let S1 = new Stone(300,300);
-    let S2 = new Stone(200,250);
-    let S3 = new Stone(450,250);
+    let E1 = new Enemy(150,450,"sayao");
+    let E2 = new Enemy(200,450,"kabao");
+    let E3 = new Enemy(250,450,"tanaka");
+    let S1 = new Stone(250,150);
+    let S2 = new Stone(300,250);
+    let S3 = new Stone(250,300);
+    let S4 = new Stone(300,450);
+    let S5 = new Stone(300,550);
     let enys = [E1,E2,E3]
-    let stones = [S1,S2,S3]
+    let stones = [S1,S2,S3,S4,S5]
     window.addEventListener('keydown', function(event) {
         if (P.y/50-1>=0 && B.list[P.y/50-1][P.x/50] == '0'){
             if (P.y >= 50){
@@ -169,6 +189,11 @@ function main() {
                             }
                             for (let stone of stones){
                                 if (stone !== this && S.x === stone.x && S.y-50 === stone.y) {
+                                    return;
+                                }
+                            }
+                            for (let eny of enys){
+                                if (eny !== this && S.x === eny.x && S.y-50 === eny.y) {
                                     return;
                                 }
                             }
@@ -196,6 +221,11 @@ function main() {
                                     return;
                                 }
                             }
+                            for (let eny of enys){
+                                if (eny !== this && S.x === eny.x && S.y+50 === eny.y) {
+                                    return;
+                                }
+                            }
                             S.y += 50
                         }
                     }
@@ -220,6 +250,11 @@ function main() {
                                     return;
                                 }
                             }
+                            for (let eny of enys){
+                                if (eny !== this && S.x+50 === eny.x && S.y === eny.y) {
+                                    return;
+                                }
+                            }
                             S.x += 50
                         }
                     }
@@ -241,6 +276,11 @@ function main() {
                             }
                             for (let stone of stones){
                                 if (stone !== this && S.x-50 === stone.x && S.y === stone.y) {
+                                    return;
+                                }
+                            }
+                            for (let eny of enys){
+                                if (eny !== this && S.x-50 === eny.x && S.y === eny.y) {
                                     return;
                                 }
                             }
