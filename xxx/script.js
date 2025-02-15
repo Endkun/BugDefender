@@ -11,16 +11,12 @@ class BackGround{
         this.grass = new Image();
         this.mt = new Image();
         this.sea = new Image();
-        this.table = new Image();
         this.house = new Image();
-        this.noHouse = new Image();
-        this.inHouse = new Image();
         this.grass.src = 'img/green.png';
         this.mt.src = 'img/mount.png';
         this.sea.src = 'img/sea.png';
-        this.noHouse.src = 'img/Nhouse.png'
-        this.inHouse.src = 'img/Khouse.png'
-        this.tiles=[this.grass,this.mt,this.sea,this.noHouse,this.inHouse];
+        this.house.src = 'img/house.png'
+        this.tiles=[this.grass,this.mt,this.sea,this.house];
         this.firstList = [["1","1","1","1","0","0","0","0","0","0","0","2","2","2","2","2"],
                      ["1","1","1","0","0","0","0","0","0","0","0","0","2","2","2","2"],
                      ["1","1","1","1","1","0","0","0","0","0","0","0","2","2","2","2"],
@@ -36,26 +32,24 @@ class BackGround{
                      ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
                     ];
         this.secondList = [["1","1","1","1","1","1","1","1","1","0","0","0","0","0","0","0"],
-                    ["1","1","1","0","3","1","1","1","1","0","0","0","0","0","0","0"],
-                    ["1","1","1","0","3","0","0","0","0","0","0","0","0","0","0","0"],
-                    ["1","1","0","0","1","0","0","1","0","0","0","0","0","0","0","0"],
-                    ["1","0","0","0","0","0","0","1","1","0","1","1","0","0","0","0"],
-                    ["1","0","0","0","0","0","0","1","1","0","1","1","0","0","0","0"],
-                    ["1","1","1","0","1","0","0","1","1","0","0","1","0","0","0","0"],
-                    ["1","1","0","0","1","0","0","1","1","0","0","1","0","0","0","0"],
-                    ["1","0","0","0","1","0","0","1","1","0","1","0","0","0","0","0"],
-                    ["1","0","1","0","1","0","0","1","1","0","1","1","0","0","0","1"],
-                    ["1","0","0","0","0","0","0","0","0","0","1","1","1","1","0","1"],
-                    ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","3","1"],
-                    ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
-                   ];
-        this.lists = [this.firstList,this.secondList]
-        this.list = this.lists[1]
+                     ["1","1","1","0","3","1","1","1","1","0","0","0","0","0","0","0"],
+                     ["1","3","3","0","3","1","0","0","0","0","0","0","0","0","0","0"],
+                     ["1","3","0","0","3","1","0","3","0","0","0","0","0","0","0","0"],
+                     ["1","0","0","0","0","1","0","3","1","0","3","1","0","0","0","0"],
+                     ["1","0","0","0","0","0","0","3","1","0","1","1","0","0","0","0"],
+                     ["1","1","1","0","1","0","0","3","1","0","3","1","0","0","0","0"],
+                     ["1","3","0","0","1","3","0","3","1","0","3","1","0","0","0","0"],
+                     ["1","3","3","0","3","3","0","1","1","0","3","3","0","0","0","0"],
+                     ["1","0","1","0","1","1","0","3","3","0","1","1","0","0","0","0"],
+                     ["1","0","0","0","0","0","0","0","0","0","1","3","3","3","0","0"],
+                     ["1","1","3","3","3","3","3","1","1","1","1","1","1","1","0","0"],
+                     ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
+                    ];
     }
     draw(ctx){
         for (  var i = 0;  i < 12;  i++ ) {
             for (var j = 0; j < 16; j++) {
-                this.mapnum = parseInt(this.list[i][j]);
+                this.mapnum = parseInt(this.firstList[i][j]);
                 ctx.drawImage(this.tiles[this.mapnum], 0, 0, this.w, this.h, this.mx, this.my, this.w, this.h );
                 this.mx += 50;
             }
@@ -74,100 +68,12 @@ class Player{
         this.y = 100;
         this.w = 50;
         this.h = 50;
-        this.hp = 1;
         this.team = "味方"
         this.ply = new Image();
         this.ply.src = 'img/man1.png'
     }
     draw(ctx){
-        ctx.globalAlpha = this.hp;
         ctx.drawImage(this.ply, 0, 0, this.w, this.h, this.x, this.y, this.w, this.h );
-        ctx.globalAlpha = 1;
-    }
-}
-class Kobito{
-    constructor(kx,ky,name){
-        this.x = kx;
-        this.y = ky;
-        this.w = 25;
-        this.h = 25;
-        this.name = name
-        this.team = "小人"
-        this.tick = 0;
-        this.deathTick = 0;
-        this.isDeath = 0;
-        this.hp = 1;
-        this.kbt = new Image();
-        this.kbt.src = 'img/kobito2.png'
-    }
-    getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
-    update(P, enys, B,stones) {
-        this.tick += 1;
-        if (this.tick >= 10) {
-            this.s = this.getRandomInt(4);
-    
-            if (this.s == 0) {
-                this.x1 = 25;
-                this.y1 = 0;
-            } else if (this.s == 1) {
-                this.x1 = -25;
-                this.y1 = 0;
-            } else if (this.s == 2) {
-                this.x1 = 0;
-                this.y1 = -25;
-            } else if (this.s == 3) {
-                this.x1 = 0;
-                this.y1 = 25;
-            }
-            this.newx = this.x + this.x1;
-            this.newy = this.y + this.y1;
-            if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
-                this.isDeath = 1;
-                return;
-            }
-            this.tilex = Math.floor(this.newx/50)
-            this.tiley = Math.floor(this.newy/50)
-            let tileValue = B.list[this.tiley][this.tilex];
-            if (tileValue !== "0") {
-                return;
-            }
-            this.ksx = Math.floor(this.newx/50)
-            this.ksy = Math.floor(this.newy/50)
-            this.sx = this.ksx*50
-            this.sy = this.ksy*50
-            console.log(this.sx,this.sy,this.ksx,this.ksy)
-            if (this.sx === P.x && this.sy === P.y) {
-                return;
-            }
-            for (let eny of enys) {
-                if (this.x == eny.x && this.y == eny.y){
-                    this.hp -= 0.1;
-                    if (this.hp < 0){
-                        this.x = 50;
-                        this.y = 0;
-                    }
-                }
-                if (eny !== this && this.sx === eny.x && this.sy === eny.y) {
-                    return;
-                }
-            }
-            for (let stone of stones){
-                if (stone !== this && this.sx === stone.x && this.sy === stone.y) {
-                    return;
-                }
-            }
-            this.x = this.newx;
-            this.y = this.newy;
-            this.tick = 0;
-        }
-    }
-    draw(ctx){
-        
-        ctx.globalAlpha = this.hp;
-        ctx.drawImage(this.kbt, 0, 0, this.w, this.h, this.x, this.y, this.w, this.h );
-        ctx.globalAlpha = 1;
     }
 }
 class Enemy{
@@ -212,7 +118,7 @@ class Enemy{
                 this.isDeath = 1;
                 return;
             }
-            console.log(this.name,this.newx/50,this.newy/50)
+            console.log(this.name,this.x,this.y)
             let tileValue = B.list[this.newy / 50][this.newx / 50];
             if (tileValue !== "0") {
                 this.isDeath = 1;
@@ -220,11 +126,6 @@ class Enemy{
     
             if (this.newx === P.x && this.newy === P.y) {
                 this.isDeath = 1;
-                P.hp -= 0.02
-                if (P.hp < 0){
-                    P.x = 0
-                    P.y = 50
-                }
             }
     
             for (let eny of enys) {
@@ -245,12 +146,6 @@ class Enemy{
             if (this.deathTick > 500){
                 this.x = 50
                 this.y = 50
-                for (let eny of enys){
-                    if (eny.team == "味方"){
-                        eny.hp = 40;
-                        console.log("プレイヤーの体力は"+eny.hp+"減ったよ！");
-                    }
-                }
             }
             if (this.isDeath == "1"){ //return切り離し用
                 this.isDeath = 0
@@ -292,12 +187,8 @@ function main() {
     let S3 = new Stone(250,300);
     let S4 = new Stone(300,450);
     let S5 = new Stone(300,550);
-    let K1 = new Kobito(200,300,"satou");
-    let K2 = new Kobito(600,100,"sio");
-    let K3 = new Kobito(700,400,"pawa-");
     let enys = [E1,E2,E3]
     let stones = [S1,S2,S3,S4,S5]
-    let kbts = [K1,K2,K3]
     window.addEventListener('keydown', function(event) {
         if (P.y/50-1>=0 && B.list[P.y/50-1][P.x/50] == '0'){
             if (P.y >= 50){
@@ -434,11 +325,7 @@ function main() {
             eny.draw(ctx);
         } 
         for (let stone of stones){
-            stone.draw(ctx);
-        }
-        for (let kbt of kbts){
-            kbt.update(P,enys,B,stones);
-            kbt.draw(ctx);
+            stone.draw(ctx)
         }
         requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
     }
