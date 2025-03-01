@@ -50,11 +50,11 @@ class BackGround{
                     ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
                    ];
         this.lists = [this.firstList,this.secondList]
+        this.list = this.lists[level];
     }
-    draw(ctx,level){
+    draw(ctx){
         for (  var i = 0;  i < 12;  i++ ) {
             for (var j = 0; j < 16; j++) {
-                this.list = this.lists[level];
                 this.mapnum = parseInt(this.list[i][j]);
                 ctx.drawImage(this.tiles[this.mapnum], 0, 0, this.w, this.h, this.mx, this.my, this.w, this.h );
                 this.mx += 50;
@@ -425,6 +425,25 @@ function main() {
         }
     });
     // -----------------------------
+    // レベルアップ処理
+    // 説明：レベルアップ関数を新たに作り、切り替え用のマップデータと敵のデータを入れる。そして、敵の死亡者リストとプレイヤーの座標、体力などを
+    // 初期化した。補足：level0のenysは死んだときの設定(体力や座標など)が残っているので、新たにenysを作って敵のデータを入れなければならない。
+    // -----------------------------
+    function levelUp(){  
+        B = new BackGround(level); 
+        enys = [
+            new Enemy(150,450,"sayao"),
+            new Enemy(200,450,"kabao"),
+            new Enemy(250,450,"tanaka")
+        ];
+        enydeads = []
+        P.x = 400;
+        P.y = 50;
+        P.hp = 1;
+        requestAnimationFrame(draw);
+        
+    }
+    // -----------------------------
     // アニメ処理
     // -----------------------------
     function draw() {
@@ -436,7 +455,7 @@ function main() {
         ctx.font = "50px serif";
         ctx.beginPath();
         ctx.fill();
-        B.draw(ctx,level);
+        B.draw(ctx);
         P.draw(ctx);
         for ( let eny of enys ){
             eny.update(P,enys,B,stones);
@@ -461,18 +480,13 @@ function main() {
             ctx.fillText("敗北しました", 50, 100)
        }
         if (enydeads.length == enys.length){
-            level = 1
-        }//else{
-        requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
-        //}
+            level += 1;
+            levelUp();
+        }else{
+            requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
+        }
     }
     draw();
 
 }
 main();
-// if(P1.hp==0){
-//     ctx2.fillText("敗北しました", 50, 100)
-//     }
-//     if(P1.hp>0){
-//     requestAnimationFrame(draw_flame)
-//     }
