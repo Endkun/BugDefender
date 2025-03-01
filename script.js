@@ -1,5 +1,5 @@
 class BackGround{
-    constructor(){
+    constructor(level){
         this.mx = 0;
         this.my = 0;
         this.w = 50;
@@ -50,11 +50,11 @@ class BackGround{
                     ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],
                    ];
         this.lists = [this.firstList,this.secondList]
-        this.list = this.lists[1]
     }
-    draw(ctx){
+    draw(ctx,level){
         for (  var i = 0;  i < 12;  i++ ) {
             for (var j = 0; j < 16; j++) {
+                this.list = this.lists[level];
                 this.mapnum = parseInt(this.list[i][j]);
                 ctx.drawImage(this.tiles[this.mapnum], 0, 0, this.w, this.h, this.mx, this.my, this.w, this.h );
                 this.mx += 50;
@@ -137,7 +137,7 @@ class Kobito{
             this.ksy = Math.floor(this.newy/50)
             this.sx = this.ksx*50
             this.sy = this.ksy*50
-            console.log(this.sx,this.sy,this.ksx,this.ksy)
+            //console.log(this.sx,this.sy,this.ksx,this.ksy)
             if (this.sx === P.x && this.sy === P.y) {
                 return;
             }
@@ -176,11 +176,13 @@ class Enemy{
         this.y = ey;
         this.w = 50;
         this.h = 50;
+        this.hp = 1;
         this.name = name
         this.team = "敵"
         this.tick = 0;
         this.deathTick = 0;
         this.isDeath = 0;
+        this.isDead = 0;
         this.eny = new Image();
         this.eny.src = 'img/bug1.png'
     }
@@ -212,7 +214,7 @@ class Enemy{
                 this.isDeath = 1;
                 return;
             }
-            console.log(this.name,this.newx/50,this.newy/50)
+            //console.log(this.name,this.newx/50,this.newy/50)
             let tileValue = B.list[this.newy / 50][this.newx / 50];
             if (tileValue !== "0") {
                 this.isDeath = 1;
@@ -220,7 +222,7 @@ class Enemy{
     
             if (this.newx === P.x && this.newy === P.y) {
                 this.isDeath = 1;
-                P.hp -= 0.02
+                P.hp -= 0.2
                 if (P.hp < 0){
                     P.x = 0
                     P.y = 50
@@ -242,15 +244,16 @@ class Enemy{
             }else{
                 this.deathTick = 0
             }
-            if (this.deathTick > 500){
+            if (this.deathTick > 200){
+                if (this.hp >= 0.05){
+                    this.hp -= 0.01
+                }
+            }
+            if (this.deathTick > 5){
                 this.x = 50
                 this.y = 50
-                for (let eny of enys){
-                    if (eny.team == "味方"){
-                        eny.hp = 40;
-                        console.log("プレイヤーの体力は"+eny.hp+"減ったよ！");
-                    }
-                }
+                this.hp = 1
+                this.isDead = 1
             }
             if (this.isDeath == "1"){ //return切り離し用
                 this.isDeath = 0
@@ -262,7 +265,9 @@ class Enemy{
         }
     }
     draw(ctx){
+        ctx.globalAlpha = this.hp;
         ctx.drawImage(this.eny, 0, 0, this.w, this.h, this.x, this.y, this.w, this.h );
+        ctx.globalAlpha = 1;
     }
 }
 class Stone{
@@ -282,8 +287,9 @@ class Stone{
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 function main() {
+    let level = 0
     let P = new Player();
-    let B = new BackGround(); 
+    let B = new BackGround(level); 
     let E1 = new Enemy(150,450,"sayao");
     let E2 = new Enemy(200,450,"kabao");
     let E3 = new Enemy(250,450,"tanaka");
@@ -291,13 +297,15 @@ function main() {
     let S2 = new Stone(300,250);
     let S3 = new Stone(250,300);
     let S4 = new Stone(300,450);
-    let S5 = new Stone(300,550);
+    let S5 = new Stone(600,350);
     let K1 = new Kobito(200,300,"satou");
     let K2 = new Kobito(600,100,"sio");
-    let K3 = new Kobito(700,400,"pawa-");
-    let enys = [E1,E2,E3]
+    let K3 = new Kobito(300,400,"pawa-");
+    //let enys = [E1,E2,E3]
+    let enys = [E1,E2]
     let stones = [S1,S2,S3,S4,S5]
     let kbts = [K1,K2,K3]
+    let enydeads = []
     window.addEventListener('keydown', function(event) {
         if (P.y/50-1>=0 && B.list[P.y/50-1][P.x/50] == '0'){
             if (P.y >= 50){
@@ -425,14 +433,22 @@ function main() {
         ctx.fillRect(0, 0, canvas.width, canvas.height); // 背景を白
         // 2. 図形の描画
         ctx.fillStyle = 'rgb(10, 10, 10)';
+        ctx.font = "50px serif";
         ctx.beginPath();
         ctx.fill();
-        B.draw(ctx);
+        B.draw(ctx,level);
         P.draw(ctx);
         for ( let eny of enys ){
             eny.update(P,enys,B,stones);
             eny.draw(ctx);
+            if (eny.isDead == 1){
+                if (!(enydeads.includes(eny.name))){
+                    enydeads.push(eny.name);
+                }
+            }
         } 
+
+        console.log(enydeads.length,enys.length);
         for (let stone of stones){
             stone.draw(ctx);
         }
@@ -440,8 +456,23 @@ function main() {
             kbt.update(P,enys,B,stones);
             kbt.draw(ctx);
         }
+        
+        if(P.hp<0.01){
+            ctx.fillText("敗北しました", 50, 100)
+       }
+        if (enydeads.length == enys.length){
+            level = 1
+        }//else{
         requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
+        //}
     }
     draw();
+
 }
 main();
+// if(P1.hp==0){
+//     ctx2.fillText("敗北しました", 50, 100)
+//     }
+//     if(P1.hp>0){
+//     requestAnimationFrame(draw_flame)
+//     }
