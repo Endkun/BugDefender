@@ -466,7 +466,7 @@ function main() {
                 }
             }
         } 
-
+        
         console.log(enydeads.length,enys.length);
         for (let stone of stones){
             stone.draw(ctx);
@@ -487,6 +487,20 @@ function main() {
         }
     }
     draw();
-
+    const maxWidth = window.innerWidth;
+    const maxHeight = window.innerHeight;
+    console.log(maxWidth)
+    console.log(maxHeight)
+    if (maxWidth < maxHeight){//縦が横よりも小さかったら、縦を拡大の軸にする
+        const scale = maxWidth/800
+        canvas.width = 800 * scale;
+        canvas.height = 600 * scale;
+        ctx.scale(scale,scale); //すまほ:0~1100,0~2400
+    }else{
+        const scale =maxHeight/600;
+        canvas.width = 800 * scale;
+        canvas.height = 600 * scale;
+        ctx.scale(scale,scale);
+    } 
 }
 main();
