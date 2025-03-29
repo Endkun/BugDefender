@@ -1,3 +1,5 @@
+//import {move} from "./buttonscript.js"
+//console.log(move)
 class BackGround{
     constructor(level){
         this.mx = 0;

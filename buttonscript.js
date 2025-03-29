@@ -1,5 +1,10 @@
+//export function move() {
+//    return 1
+//}
 const bcanvas = document.getElementById("buttonCanvas");
+const canvas = document.getElementById("gameCanvas");
 const bctx = bcanvas.getContext("2d");
+const ctx = canvas.getContext("2d") 
 function draw() {
     // 1. 画面のクリア
     bctx.fillStyle = 'rgb(255, 0, 0)';
@@ -14,18 +19,22 @@ function draw() {
     bctx.fillRect(75, 125, 50 , 50)
     requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
     window.addEventListener('click', e => {
-        if (e.clientX >= 75 && e.clientX <= 125 && e.clientY >= 25 && e.clientY <= 75) { // Xが75以上で125以下、Yが25以上で75以下
-            console.log("上");
+        var rect = e.target.getBoundingClientRect();
+        bx = e.clientX - rect.left;
+        by = e.clientY - rect.top;
+        if (bx >= 75 && bx <= 125 && by >= 25 && by <= 75) { // Xが75以上で125以下、Yが25以上で75以下
+            console.log("上")
         }
-        if (e.clientX >= 125 && e.clientX <= 175 && e.clientY >= 75 && e.clientY <= 125) {
-            console.log("右");
+        if (bx >= 125 && bx <= 175 && by >= 75 && by <= 125) {
+            console.log("右")
         }
-        if (e.clientX >= 25 && e.clientX <= 75 && e.clientY >= 75 && e.clientY <= 125) {
-            console.log("左");
+        if (bx >= 25 && bx <= 75 && by >= 75 && by <= 125) {
+            console.log("左")
         }
-        if (e.clientX >= 75 && e.clientX <= 125 && e.clientY >= 125 && e.clientY <= 175) {
-            console.log("下");
+        if (bx >= 75 && bx <= 125 && by >= 125 && by <= 175) {
+            console.log("下")
         }
+
     });
     
 }
