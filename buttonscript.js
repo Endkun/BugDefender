@@ -42,7 +42,7 @@ function draw() {
     bctx.fillRect(125, 75, 50 , 50)
     bctx.fillRect(25, 75, 50 , 50)
     bctx.fillRect(75, 125, 50 , 50)
-    console.log("direction"+direction)
+    //console.log("direction"+direction)
     requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
 }
 draw();

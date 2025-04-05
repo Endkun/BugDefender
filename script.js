@@ -376,123 +376,8 @@ function main() {
         
         if(P.hp<0.01){
             ctx.fillText("敗北しました", 50, 100)
-       }
-       if (P.y/50-1>=0 && B.list[P.y/50-1][P.x/50] == '0'){
-            if (P.y >= 50){
-                if (direction == 1 || keyboard_Direction == 1) {
-                    for (let S of stones){
-                        if (P.y/50-1 == S.y/50 && P.x/50 == S.x/50){
-                            let tileValue = B.list[S.y / 50-1][S.x / 50];
-                            if (S.x < B.w1 || S.x >= B.w2 * 50 || S.y-50 < B.h1 || S.y-50 >= B.h2 * 50){
-                                return;
-                            }
-                            if (tileValue !== "0") {
-                                return;
-                            }
-                            for (let stone of stones){
-                                if (stone !== this && S.x === stone.x && S.y-50 === stone.y) {
-                                    return;
-                                }
-                            }
-                            for (let eny of enys){
-                                if (eny !== this && S.x === eny.x && S.y-50 === eny.y) {
-                                    return;
-                                }
-                            }
-                            S.y -= 50
-                        }
-                    }
-                    P.y -= 50
-                }
-            }
         }
-        if (P.y/50-1<=13 && B.list[P.y/50+1][P.x/50] == '0'){
-            if (P.y <= 500){
-                if (direction == 2 || keyboard_Direction == 2) {
-                    for (let S of stones){
-                        if (P.y/50+1 == S.y/50 && P.x/50 == S.x/50){
-                            let tileValue = B.list[S.y / 50+1][S.x / 50];
-                            if (S.x < B.w1 || S.x >= B.w2 * 50 || S.y+50 < B.h1 || S.y+50 >= B.h2 * 50){
-                                return;
-                            }
-                            if (tileValue !== "0") {
-                                return;
-                            }
-                            for (let stone of stones){
-                                if (stone !== this && S.x === stone.x && S.y+50 === stone.y) {
-                                    return;
-                                }
-                            }
-                            for (let eny of enys){
-                                if (eny !== this && S.x === eny.x && S.y+50 === eny.y) {
-                                    return;
-                                }
-                            }
-                            S.y += 50
-                        }
-                    }
-                    P.y += 50
-                }
-            }
-        }
-        if (P.x/50-1<=17 && B.list[P.y/50][P.x/50+1] == '0'){
-            if (P.x <= 700){
-                if  (direction == 3 || keyboard_Direction == 3) {
-                    for (let S of stones){
-                        if (P.y/50 == S.y/50 && P.x/50+1 == S.x/50){
-                            let tileValue = B.list[S.y / 50][S.x / 50+1];
-                            if (S.x+50 < B.w1 || S.x+50 >= B.w2 * 50 || S.y < B.h1 || S.y >= B.h2 * 50){
-                                return;
-                            }
-                            if (tileValue !== "0") {
-                                return;
-                            }
-                            for (let stone of stones){
-                                if (stone !== this && S.x+50 === stone.x && S.y === stone.y) {
-                                    return;
-                                }
-                            }
-                            for (let eny of enys){
-                                if (eny !== this && S.x+50 === eny.x && S.y === eny.y) {
-                                    return;
-                                }
-                            }
-                            S.x += 50
-                        }
-                    }
-                    P.x += 50
-                }
-            }
-        }
-        if (P.x/50-1>=0 && B.list[P.y/50][P.x/50-1] == '0'){
-            if (P.x >= 50){
-                if (direction == 4 || keyboard_Direction == 4) {
-                    for (let S of stones){
-                        if (P.y/50 == S.y/50 && P.x/50-1 == S.x/50){
-                            let tileValue = B.list[S.y / 50][S.x / 50-1];
-                            if (S.x-50 < B.w1 || S.x-50 >= B.w2 * 50 || S.y < B.h1 || S.y >= B.h2 * 50){
-                                return;
-                            }
-                            if (tileValue !== "0") {
-                                return;
-                            }
-                            for (let stone of stones){
-                                if (stone !== this && S.x-50 === stone.x && S.y === stone.y) {
-                                    return;
-                                }
-                            }
-                            for (let eny of enys){
-                                if (eny !== this && S.x-50 === eny.x && S.y === eny.y) {
-                                    return;
-                                }
-                            }
-                            S.x -= 50
-                        }
-                    }
-                    P.x -= 50
-                }
-            }
-        }
+        repair(P, enys, stones, B);
         keyboard_Direction = 0;
         kakikae(0);
         console.log("dire"+direction)
@@ -503,6 +388,76 @@ function main() {
             requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
         }
     }
+    function repair(P, enys, stones, B, keyboard_Direction) {
+        if (direction === 1  || keyboard_Direction == 1 && P.y >= 50 && P.y / 50 - 1 >= 0 && B.list[P.y / 50 - 1][P.x / 50] === '0') {
+            for (let S of stones) {
+                if (P.y / 50 - 1 == S.y / 50 && P.x / 50 == S.x / 50) {
+                    let tileValue = B.list[S.y / 50 - 1][S.x / 50];
+                    if (S.y - 50 < B.h1 || S.y - 50 >= B.h2 * 50 || tileValue !== '0') return;
+                    for (let stone of stones) {
+                        if (stone !== S && S.x === stone.x && S.y - 50 === stone.y) return;
+                    }
+                    for (let eny of enys) {
+                        if (eny !== S && S.x === eny.x && S.y - 50 === eny.y) return;
+                    }
+                    S.y -= 50;
+                }
+            }
+            P.y -= 50;
+        }
+    
+        if (direction === 2 || keyboard_Direction == 2 && P.y <= 500 && P.y / 50 + 1 <= 13 && B.list[P.y / 50 + 1][P.x / 50] === '0') {
+            for (let S of stones) {
+                if (P.y / 50 + 1 == S.y / 50 && P.x / 50 == S.x / 50) {
+                    let tileValue = B.list[S.y / 50 + 1][S.x / 50];
+                    if (S.y + 50 >= B.h2 * 50 || tileValue !== '0') return;
+                    for (let stone of stones) {
+                        if (stone !== S && S.x === stone.x && S.y + 50 === stone.y) return;
+                    }
+                    for (let eny of enys) {
+                        if (eny !== S && S.x === eny.x && S.y + 50 === eny.y) return;
+                    }
+                    S.y += 50;
+                }
+            }
+            P.y += 50;
+        }
+    
+        if (direction === 3 || keyboard_Direction == 3 && P.x <= 700 && P.x / 50 + 1 <= 17 && B.list[P.y / 50][P.x / 50 + 1] === '0') {
+            for (let S of stones) {
+                if (P.y / 50 == S.y / 50 && P.x / 50 + 1 == S.x / 50) {
+                    let tileValue = B.list[S.y / 50][S.x / 50 + 1];
+                    if (S.x + 50 >= B.w2 * 50 || tileValue !== '0') return;
+                    for (let stone of stones) {
+                        if (stone !== S && S.x + 50 === stone.x && S.y === stone.y) return;
+                    }
+                    for (let eny of enys) {
+                        if (eny !== S && S.x + 50 === eny.x && S.y === eny.y) return;
+                    }
+                    S.x += 50;
+                }
+            }
+            P.x += 50;
+        }
+    
+        if (direction === 4 || keyboard_Direction == 4 && P.x >= 50 && P.x / 50 - 1 >= 0 && B.list[P.y / 50][P.x / 50 - 1] === '0') {
+            for (let S of stones) {
+                if (P.y / 50 == S.y / 50 && P.x / 50 - 1 == S.x / 50) {
+                    let tileValue = B.list[S.y / 50][S.x / 50 - 1];
+                    if (S.x - 50 < B.w1 || tileValue !== '0'){ return;
+                    for (let stone of stones) {
+                        if (stone !== S && S.x - 50 === stone.x && S.y === stone.y) return;
+                    }
+                    for (let eny of enys) {
+                        if (eny !== S && S.x - 50 === eny.x && S.y === eny.y) return;
+                    }
+                    S.x -= 50;
+                }
+            }
+            P.x -= 50;
+        }
+    }
+
     draw();
     const maxWidth = window.innerWidth;
     const maxHeight = window.innerHeight;
