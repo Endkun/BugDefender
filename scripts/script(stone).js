@@ -272,8 +272,8 @@ function main() {
         for (let stone of stones){
             stone.draw(ctx)
         }
-        requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
+        requestAnimationFrame(loop); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
     }
-    draw();
+    loop();
 }
 main();

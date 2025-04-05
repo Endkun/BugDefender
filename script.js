@@ -182,6 +182,7 @@ class Enemy{
         this.team = "敵"
         this.tick = 0;
         this.deathTick = 0;
+        this.isReturn = 0;
         this.isDeath = 0;
         this.isDead = 0;
         this.eny = new Image();
@@ -192,72 +193,90 @@ class Enemy{
     }
     update(P, enys, B,stones) {
         this.tick += 1;
+        //let tileValue = 0
         if (this.tick >= 10) {
-            this.s = this.getRandomInt(4);
-    
-            if (this.s == 0) {
-                this.x1 = 50;
-                this.y1 = 0;
-            } else if (this.s == 1) {
-                this.x1 = -50;
-                this.y1 = 0;
-            } else if (this.s == 2) {
-                this.x1 = 0;
-                this.y1 = -50;
-            } else if (this.s == 3) {
-                this.x1 = 0;
-                this.y1 = 50;
-            }
-            this.newx = this.x + this.x1;
-            this.newy = this.y + this.y1;
-    
-            if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
-                this.isDeath = 1;
-                return;
-            }
-            //console.log(this.name,this.newx/50,this.newy/50)
-            let tileValue = B.list[this.newy / 50][this.newx / 50];
-            if (tileValue !== "0") {
-                this.isDeath = 1;
-            }
-    
-            if (this.newx === P.x && this.newy === P.y) {
-                this.isDeath = 1;
-                P.hp -= 0.2
-                if (P.hp < 0){
-                    P.x = 0
-                    P.y = 50
+            //this.s = this.getRandomInt(4);
+            for (let i = 0; i < 3; i++){
+                if (i == 0) {
+                    this.x1 = 50;
+                    this.y1 = 0;
+                } else if (i == 1) {
+                    this.x1 = -50;
+                    this.y1 = 0;
+                } else if (i == 2) {
+                    this.x1 = 0;
+                    this.y1 = -50;
+                } else if (i == 3) {
+                    this.x1 = 0;
+                    this.y1 = 50;
                 }
-            }
-    
-            for (let eny of enys) {
-                if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
-                    this.isDeath = 1;
+                this.newx = this.x + this.x1;
+                this.newy = this.y + this.y1;
+                if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
+                    this.isReturn = 1;
                 }
-            }
-            for (let stone of stones){
-                if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
-                    this.isDeath = 1;
+                let tileValue = B.list[this.newy / 50][this.newx / 50];
+                if (tileValue !== "0") {
+                    this.isReturn = 1;
                 }
+                if (this.newx === P.x && this.newy === P.y) {
+                    this.isReturn = 1;
+                    if (P.hp < 0){
+                        P.hp -= 0.2
+                        P.x = 0
+                        P.y = 50
+                    }
+                }   
+                for (let eny of enys) {
+                    if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
+                        this.isDeath = 1;
             }
+            
+            // if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
+            //     this.isDeath = 1;
+            //     return;
+            // }
+            // //console.log(this.name,this.newx/50,this.newy/50)
+            // let tileValue = B.list[this.newy / 50][this.newx / 50];
+            // if (tileValue !== "0") {
+            //     this.isDeath = 1;
+            // }
+            // if (this.newx === P.x && this.newy === P.y) {
+            //     this.isDeath = 1;
+            //     P.hp -= 0.2
+            //     if (P.hp < 0){
+            //         P.x = 0
+            //         P.y = 50
+            //     }
+            // }
+            // for (let eny of enys) {
+            //     if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
+            //         this.isDeath = 1;
+            //     }
+            // }
+            // for (let stone of stones){
+            //     if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
+            //         this.isDeath = 1;
+            //     }
+            // }
             if (this.isDeath == "1") {//死亡カウント用
                 this.deathTick += 1
             }else{
                 this.deathTick = 0
             }
-            if (this.deathTick > 200){
+            if (this.deathTick > 500){
                 if (this.hp >= 0.05){
                     this.hp -= 0.01
                 }
             }
-            if (this.deathTick > 5){
+            if (this.deathTick > 500){
                 this.x = 50
                 this.y = 50
                 this.hp = 1
                 this.isDead = 1
             }
-            if (this.isDeath == "1"){ //return切り離し用
-                this.isDeath = 0
+            if (this.isReturn == "1"){ //return切り離し用
+                this.isReturn = 0
                 return;
             }
             this.x = this.newx;
@@ -334,17 +353,24 @@ function main() {
             new Enemy(200,450,"kabao"),
             new Enemy(250,450,"tanaka")
         ];
+        stones = [
+        new Stone(250,150),
+        new Stone(300,250),
+        new Stone(250,300),
+        new Stone(300,450),
+        new Stone(600,350)
+        ]
         enydeads = []
         P.x = 400;
-        P.y = 50;
+        P.y = 100;
         P.hp = 1;
-        requestAnimationFrame(draw);
+        requestAnimationFrame(loop);
         
     }
     // -----------------------------
     // アニメ処理
     // -----------------------------
-    function draw() {
+    function loop() {
         // 1. 画面のクリア
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height); // 背景を白
@@ -365,7 +391,7 @@ function main() {
             }
         } 
         
-        console.log(enydeads.length,enys.length);
+        //console.log(enydeads.length,enys.length);
         for (let stone of stones){
             stone.draw(ctx);
         }
@@ -377,15 +403,15 @@ function main() {
         if(P.hp<0.01){
             ctx.fillText("敗北しました", 50, 100)
         }
-        repair(P, enys, stones, B);
+        repair(P, enys, stones, B, keyboard_Direction);
         keyboard_Direction = 0;
         kakikae(0);
-        console.log("dire"+direction)
+        //console.log("dire"+direction)
         if (enydeads.length == enys.length){
             level += 1;
             levelUp();
         }else{
-            requestAnimationFrame(draw); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
+            requestAnimationFrame(loop); // フレームごとに更新 while(繰り返し)とpygame.display.update(全体の描画)の中間みたいな感じ
         }
     }
     function repair(P, enys, stones, B, keyboard_Direction) {
@@ -444,7 +470,7 @@ function main() {
             for (let S of stones) {
                 if (P.y / 50 == S.y / 50 && P.x / 50 - 1 == S.x / 50) {
                     let tileValue = B.list[S.y / 50][S.x / 50 - 1];
-                    if (S.x - 50 < B.w1 || tileValue !== '0'){ return;
+                    if (S.x - 50 < B.w1 || tileValue !== '0') return;
                     for (let stone of stones) {
                         if (stone !== S && S.x - 50 === stone.x && S.y === stone.y) return;
                     }
@@ -458,7 +484,7 @@ function main() {
         }
     }
 
-    draw();
+    loop();
     const maxWidth = window.innerWidth;
     const maxHeight = window.innerHeight;
     console.log(maxWidth)
