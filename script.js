@@ -125,7 +125,6 @@ class Kobito{
             this.newx = this.x + this.x1;
             this.newy = this.y + this.y1;
             if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
-                this.isDeath = 1;
                 return;
             }
             this.tilex = Math.floor(this.newx/50)
@@ -183,106 +182,153 @@ class Enemy{
         this.tick = 0;
         this.deathTick = 0;
         this.isReturn = 0;
-        this.isDeath = 0;
         this.isDead = 0;
         this.eny = new Image();
         this.eny.src = 'img/bug1.png'
+        this.blockedCount = 0
     }
     getRandomInt(max) {
         return Math.floor(Math.random() * max);
     }
-    update(P, enys, B,stones) {
-        this.tick += 1;
-        //let tileValue = 0
-        if (this.tick >= 10) {
-            //this.s = this.getRandomInt(4);
-            for (let i = 0; i < 3; i++){
-                if (i == 0) {
-                    this.x1 = 50;
-                    this.y1 = 0;
-                } else if (i == 1) {
-                    this.x1 = -50;
-                    this.y1 = 0;
-                } else if (i == 2) {
-                    this.x1 = 0;
-                    this.y1 = -50;
-                } else if (i == 3) {
-                    this.x1 = 0;
-                    this.y1 = 50;
-                }
-                this.newx = this.x + this.x1;
-                this.newy = this.y + this.y1;
-                if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
-                    this.isReturn = 1;
-                }
-                let tileValue = B.list[this.newy / 50][this.newx / 50];
-                if (tileValue !== "0") {
-                    this.isReturn = 1;
-                }
-                if (this.newx === P.x && this.newy === P.y) {
-                    this.isReturn = 1;
-                    if (P.hp < 0){
-                        P.hp -= 0.2
-                        P.x = 0
-                        P.y = 50
-                    }
-                }   
-                for (let eny of enys) {
-                    if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
-                        this.isDeath = 1;
+    update(P,enys,B,stones){
+        this.tick += 1; 
+        if (this.tick >= 20) { //20ティック毎で一度敵を動かすようにしている
+            this.s = this.getRandomInt(4);//ランダム 4の場合0~3を数える
+            let dirs = [{dx: 50, dy:0},//上下左右の索敵範囲プログラム
+                        {dx: -50, dy: 0},
+                        {dx: 0, dy: 50},
+                        {dx: 0, dy: -50}]
+            this.blockedCount = 0
+            this.slip_check(P,enys,B,stones)
+            for (let dir of dirs){ //上下左右1方向ずつ確認
+                this.death_check(P,enys,B,stones,dir)//索敵(4方向の索敵)
             }
-            
-            // if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
-            //     this.isDeath = 1;
-            //     return;
-            // }
-            // //console.log(this.name,this.newx/50,this.newy/50)
-            // let tileValue = B.list[this.newy / 50][this.newx / 50];
-            // if (tileValue !== "0") {
-            //     this.isDeath = 1;
-            // }
-            // if (this.newx === P.x && this.newy === P.y) {
-            //     this.isDeath = 1;
-            //     P.hp -= 0.2
-            //     if (P.hp < 0){
-            //         P.x = 0
-            //         P.y = 50
-            //     }
-            // }
-            // for (let eny of enys) {
-            //     if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
-            //         this.isDeath = 1;
-            //     }
-            // }
-            // for (let stone of stones){
-            //     if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
-            //         this.isDeath = 1;
-            //     }
-            // }
-            if (this.isDeath == "1") {//死亡カウント用
-                this.deathTick += 1
-            }else{
-                this.deathTick = 0
-            }
-            if (this.deathTick > 500){
-                if (this.hp >= 0.05){
-                    this.hp -= 0.01
-                }
-            }
-            if (this.deathTick > 500){
-                this.x = 50
-                this.y = 50
-                this.hp = 1
-                this.isDead = 1
-            }
-            if (this.isReturn == "1"){ //return切り離し用
-                this.isReturn = 0
-                return;
-            }
-            this.x = this.newx;
-            this.y = this.newy;
+            console.log(this.name,this.blockedCount)
+            this.progress()//経過(死亡経過、敵の動く経過)
             this.tick = 0;
         }
+    }
+    slip_check(P,enys,B,stones){
+        // if (this.s == 0){
+        //     this.x1 = 0;
+        //     this.y1 = 0;
+        // }
+        if (this.s == 0){
+            this.x1 = 50;
+            this.y1 = 0;
+        }
+        if (this.s == 1){
+            this.x1 = -50;
+            this.y1 = 0;
+        }
+        if (this.s == 2){
+            this.x1 = 0;
+            this.y1 = 50;
+        }
+        if (this.s == 3){
+            this.x1 = 0;
+            this.y1 = -50;
+        }
+        this.newx = this.x + this.x1
+        this.newy = this.y + this.y1 
+        console.log(this.s)
+        if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){
+            return;
+        }
+        //console.log(this.name,this.newx/50,this.newy/50)
+        let tileValue = B.list[this.newy / 50][this.newx / 50];
+        if (tileValue !== "0") {
+            return;
+        }
+        if (this.newx === P.x && this.newy === P.y) {
+            return;
+        }
+        for (let eny of enys) {
+            if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
+                return;
+            }
+        }
+        for (let stone of stones){
+            if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
+                return;
+            }
+        }
+        this.x = this.newx;
+        this.y = this.newy;
+    }
+    death_check(P, enys, B,stones,dir) { //索敵
+        this.newx = this.x + dir.dx;
+        this.newy = this.y + dir.dy;
+        if (this.newx < B.w1 || this.newx >= B.w2 * 50 || this.newy < B.h1 || this.newy >= B.h2 * 50){//画面の端か確認
+            this.blockedCount += 1;
+            return
+
+        }
+        //console.log(this.name,this.newx/50,this.newy/50)
+        let tileValue = B.list[this.newy / 50][this.newx / 50]; //上下左右のタイルを確認
+        if (tileValue !== "0") {
+            this.blockedCount += 1;
+            return
+        }
+
+        if (this.newx === P.x && this.newy === P.y) { //上下左右にプレイヤーがいるか確認
+            this.blockedCount += 1;
+            P.hp -= 0.2
+            if (P.hp < 0){//プレイヤーが死んだか(Enemyに殺されたか)
+                P.x = 0
+                P.y = 50
+            }
+            return
+        }
+
+        for (let eny of enys) { //上下左右に味方がいるか確認(但し圧されていると死ぬ)
+            if (eny !== this && this.newx === eny.x && this.newy === eny.y) {
+                this.blockedCount += 1;
+                return
+            }
+        }
+        for (let stone of stones){//上下左右に石があるか確認
+            if (stone !== this && this.newx === stone.x && this.newy === stone.y) {
+                this.blockedCount += 1;
+                return
+            }
+        }
+    }
+    progress(){
+        if (this.blockedCount >= 4) { //上下左右ブロックが4以上のカウントを持っていた場合
+            this.deathTick += 1//死亡するまでの経過tickが流れる
+            this.blockedCount = 0
+        // }else{//それ以外
+        //     this.blockedCount = 0
+        //     this.deathTick = 0
+        }
+        //console.log("progess",this.blockedCount) 
+        if (this.deathTick > 0){//死亡までの経過が200ティック超えた場合体力がなくなる
+            if (this.hp >= 0.05){
+                this.hp -= 0.01
+            }
+        }
+        if (this.deathTick > 100){//経過が500tickを超えた場合敵は死ぬ(左上に飛ばされる)
+            this.x = 50
+            this.y = 50
+            this.hp = 1
+            this.isDead = 1
+            return
+        }
+        if (this.s == 0) {//ランダムが1なら
+            this.x1 = 50;
+            this.y1 = 0;
+        } else if (this.s == 1) {//ランダムが2なら
+            this.x1 = -50;
+            this.y1 = 0;
+        } else if (this.s == 2) {//ランダムが3なら
+            this.x1 = 0;
+            this.y1 = -50;
+        } else if (this.s == 3) {//ランダムが4なら
+            this.x1 = 0;
+            this.y1 = 50;
+        }
+        //console.log(this.name,this.x,this.x1,this.y,this.y1)
     }
     draw(ctx){
         ctx.globalAlpha = this.hp;
@@ -318,13 +364,15 @@ function main() {
     let S3 = new Stone(250,300);
     let S4 = new Stone(300,450);
     let S5 = new Stone(600,350);
+    let S6 = new Stone(400,400);
+    let S7 = new Stone(200,300);
     let K1 = new Kobito(200,300,"satou");
     let K2 = new Kobito(600,100,"sio");
     let K3 = new Kobito(300,400,"pawa-");
     let keyboard_Direction = 0
     //let enys = [E1,E2,E3]
     let enys = [E1,E2]
-    let stones = [S1,S2,S3,S4,S5]
+    let stones = [S1,S2,S3,S4,S5,S6,S7]
     let kbts = [K1,K2,K3]
     let enydeads = []
     window.addEventListener('keydown', function(event) {
@@ -358,7 +406,9 @@ function main() {
         new Stone(300,250),
         new Stone(250,300),
         new Stone(300,450),
-        new Stone(600,350)
+        new Stone(600,350),
+        new Stone(400,450),
+        new Stone(500,350)
         ]
         enydeads = []
         P.x = 400;
@@ -382,6 +432,7 @@ function main() {
         B.draw(ctx);
         P.draw(ctx);
         for ( let eny of enys ){
+            //console.log(eny.name,"mi")
             eny.update(P,enys,B,stones);
             eny.draw(ctx);
             if (eny.isDead == 1){
@@ -487,8 +538,8 @@ function main() {
     loop();
     const maxWidth = window.innerWidth;
     const maxHeight = window.innerHeight;
-    console.log(maxWidth)
-    console.log(maxHeight)
+    //console.log(maxWidth)
+    //console.log(maxHeight)
     if (maxWidth < maxHeight){//縦が横よりも小さかったら、縦を拡大の軸にする
         const scale = maxWidth/800
         canvas.width = 800 * scale;
